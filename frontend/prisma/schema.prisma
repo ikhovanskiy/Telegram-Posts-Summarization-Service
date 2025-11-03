@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  telegramId    String    @unique
+  username      String?
+  firstName     String?
+  lastName      String?
+  phoneNumber   String?
+  sessionString String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  summaries     Summary[]
+  scenarios     Scenario[]
+}
+
+model Chat {
+  id          Int      @id @default(autoincrement())
+  chatId      String   @unique
+  title       String
+  type        String
+  photoUrl    String?
+  lastSync    DateTime?
+  createdAt   DateTime @default(now())
+  
+  posts           Post[]
+  summaries       Summary[]
+  scenarioConfigs ScenarioChatConfig[]
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  messageId   String
+  chatId      String
+  authorId    String?
+  authorName  String?
+  text        String
+  date        DateTime
+  createdAt   DateTime @default(now())
+  
+  chat        Chat     @relation(fields: [chatId], references: [chatId])
+  
+  @@unique([chatId, messageId])
+  @@index([chatId, date])
+}
+
+model Summary {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  chatId      String
+  periodStart DateTime
+  periodEnd   DateTime
+  summary     String
+  postCount   Int
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id])
+  chat        Chat     @relation(fields: [chatId], references: [chatId])
+  
+  @@index([userId, chatId])
+}
+
+model Scenario {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  name        String
+  description String?
+  prompt      String
+  model       String   @default("yandexgpt")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id])
+  chatConfigs ScenarioChatConfig[]
+  
+  @@index([userId])
+}
+
+model ScenarioChatConfig {
+  id          Int      @id @default(autoincrement())
+  scenarioId  Int
+  chatId      String
+  days        Int
+  createdAt   DateTime @default(now())
+  
+  scenario    Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  chat        Chat     @relation(fields: [chatId], references: [chatId])
+  
+  @@unique([scenarioId, chatId])
+  @@index([scenarioId])
+}
+
+model PendingAuth {
+  id            Int      @id @default(autoincrement())
+  phoneNumber   String   @unique
+  phoneCodeHash String
+  sessionString String
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+  
+  @@index([phoneNumber])
+  @@index([expiresAt])
+}
