@@ -14,12 +14,13 @@
   },
   "dependencies": {
     "@prisma/client": "^5.9.0",
-    "telegram": "^2.22.2",
     "date-fns": "^3.3.1",
-    "dotenv": "^16.4.1"
+    "dotenv": "^16.4.1",
+    "telegram": "^2.22.2"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-vercel": "^6.1.1",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@types/node": "^20.11.5",
